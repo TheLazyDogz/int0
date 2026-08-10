@@ -3,15 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headless Softphone Demo</title>
+    <title>Softphone SDK Demo (Headless & Default UI)</title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
             background: #f6f7f9; 
             display: flex; 
-            justify-content: center; 
-            padding: 50px 20px; 
+            flex-direction: column;
+            align-items: center; 
+            padding: 40px 20px; 
             margin: 0;
+            color: #172033;
+        }
+        .controls-header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .btn-toggle {
+            background: #172033;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(23, 32, 51, 0.15);
         }
         .phone-ui { 
             background: #ffffff; 
@@ -19,74 +36,65 @@
             box-shadow: 0 12px 32px rgba(23, 32, 51, 0.08); 
             padding: 24px; 
             width: 100%;
-            max-width: 340px; 
+            max-width: 480px; 
             border: 1px solid #dfe3e8;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        h2 {
-            margin: 0 0 16px;
-            font-size: 20px;
-            text-align: center;
-            color: #172033;
+        #softphone-default-container {
+            width: 360px; 
+            height: 560px; 
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(23, 32, 51, 0.08); 
+            overflow: hidden;
+            display: none;
         }
         .status { 
             text-align: center; 
             font-size: 14px; 
             color: #5f6b7a; 
-            margin-bottom: 20px; 
-            height: 20px; 
             font-weight: 600; 
         }
         .input-group { 
             display: flex; 
-            flex-direction: column; 
             gap: 8px; 
-            margin-bottom: 20px; 
         }
         input { 
-            padding: 12px; 
+            flex: 1;
+            padding: 10px; 
             border: 1px solid #dfe3e8; 
             border-radius: 8px; 
-            font-size: 16px; 
-            text-align: center; 
+            font-size: 15px; 
             outline: none;
-            transition: border-color 0.2s;
         }
-        input:focus {
-            border-color: #3157d5;
+        input:focus { border-color: #3157d5; }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
-        .buttons { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px; 
-            margin-bottom: 20px; 
+        .button-grid.three-cols {
+            grid-template-columns: 1fr 1fr 1fr;
         }
+        
         .btn { 
-            padding: 12px; 
-            border: none; 
+            padding: 10px; 
+            border: 1px solid #dfe3e8; 
             border-radius: 8px; 
             font-size: 14px; 
             cursor: pointer; 
-            color: #ffffff; 
+            background: #f2f4f7;
             font-weight: 600; 
-            transition: opacity 0.2s, transform 0.1s; 
+            color: #172033;
         }
-        .btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-        .btn:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed; 
-        }
-        .btn-call { 
-            background: #3157d5; 
-            grid-column: span 2; 
-        }
-        .btn-answer { 
-            background: #28a745; 
-        }
-        .btn-hangup { 
-            background: #dc3545; 
-        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-call { background: #3157d5; color: #ffffff; border-color: #3157d5; }
+        .btn-answer { background: #28a745; color: #ffffff; border-color: #28a745; }
+        .btn-hangup { background: #dc3545; color: #ffffff; border-color: #dc3545; }
+        
         .logs-wrapper {
             border: 1px solid #dfe3e8;
             border-radius: 8px;
@@ -103,64 +111,96 @@
         .logs { 
             background: #172033; 
             color: #4ade80; 
-            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
-            font-size: 11px; 
+            font-family: monospace; 
+            font-size: 12px; 
             padding: 12px; 
-            height: 160px; 
+            height: 200px; 
             overflow-y: auto; 
             margin: 0;
         }
-        .log-entry { 
-            margin-bottom: 6px; 
-            line-height: 1.4;
-        }
-        .log-time {
-            color: #5f6b7a;
-            margin-right: 4px;
-        }
-        .log-error {
-            color: #f87171;
-        }
+        .log-entry { margin-bottom: 6px; line-height: 1.4; word-wrap: break-word; }
+        .log-time { color: #5f6b7a; margin-right: 4px; }
+        .log-error { color: #f87171; }
+        .section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #5f6b7a; border-bottom: 1px solid #dfe3e8; padding-bottom: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- Технический контейнер для runtime (headless режим) -->
-    <div id="softphone-runtime" style="position: fixed; width: 1px; height: 1px; overflow: hidden"></div>
+    <div class="controls-header">
+        <button id="toggle-mode-btn" class="btn-toggle">Переключить на Встроенный UI (ui.default)</button>
+    </div>
 
-    <div class="phone-ui">
-        <h2>Custom Softphone</h2>
+    <!-- Встроенный UI -->
+    <div id="softphone-default-container"></div>
+
+    <!-- Headless UI -->
+    <div id="headless-ui-container" class="phone-ui">
         <div class="status" id="status-display">Ожидание инициализации...</div>
 
-        <div class="input-group">
-            <input type="text" id="phone-number" placeholder="Номер (напр. +12025550123)" />
+        <div>
+            <div class="section-title">Основное управление</div>
+            <div class="input-group" style="margin-bottom: 10px;">
+                <input type="text" id="phone-number" placeholder="Номер телефона (+7999...)" />
+            </div>
+            <div class="button-grid three-cols">
+                <button class="btn btn-call" id="btn-call">Позвонить</button>
+                <button class="btn btn-answer" id="btn-answer">Ответить</button>
+                <button class="btn btn-hangup" id="btn-hangup">Завершить</button>
+            </div>
         </div>
 
-        <div class="buttons">
-            <button class="btn btn-call" id="btn-call" disabled>Позвонить</button>
-            <button class="btn btn-answer" id="btn-answer" disabled>Ответить</button>
-            <button class="btn btn-hangup" id="btn-hangup" disabled>Завершить</button>
+        <div>
+            <div class="section-title">Аудио и Удержание (capabilities: hold, mute)</div>
+            <div class="button-grid">
+                <button class="btn" id="btn-mute">Выключить микрофон</button>
+                <button class="btn" id="btn-unmute">Включить микрофон</button>
+                <button class="btn" id="btn-hold">Поставить на удержание</button>
+                <button class="btn" id="btn-unhold">Снять с удержания</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title">DTMF и Перевод (capabilities: dialpad, transfer)</div>
+            <div class="input-group" style="margin-bottom: 10px;">
+                <input type="text" id="dtmf-input" placeholder="Символ DTMF (напр. 1)" maxlength="1" style="flex: 0.3;" />
+                <button class="btn" id="btn-dtmf" style="flex: 0.7;">Отправить DTMF</button>
+            </div>
+            <div class="button-grid">
+                <button class="btn" id="btn-transfer">Слепой перевод (на номер из поля выше)</button>
+            </div>
         </div>
 
         <div class="logs-wrapper">
-            <div class="logs-header">Event Logs</div>
+            <div class="logs-header">События SDK</div>
             <div class="logs" id="logs-container"></div>
         </div>
     </div>
 
-    <!-- ВНИМАНИЕ: Замените URL на реальный адрес UMD-скрипта SDK -->
-     <script src="https://dev-int0-softphone-widget-iframe.uis.st/embedder-sdk/embedder-sdk.umd.js"></script>
+    <!-- Технический контейнер для runtime (headless режим) -->
+    <div id="softphone-runtime" style="position: fixed; width: 1px; height: 1px; overflow: hidden"></div>
+
+    <script src="https://dev-int0-softphone-widget-iframe.uis.st/embedder-sdk/embedder-sdk.umd.js"></script>
 
     <script>
         let client;
         let activeChannel;
+        let currentMode = 'headless'; // 'headless' или 'default'
 
+        const authConfig = {
+            type: 'bearer',
+            token: 'ac0z2uwgb1eed3c4gix4vmz5u86e2nht7c2acpye',
+            expiresAt: Date.now() + 86400000 // +24 часа
+        };
+        const standaloneUrl = 'https://dev-int0-softphone-widget-iframe.uis.st/standalone/v1/index.html';
+
+        // DOM элементы
+        const toggleBtn = document.getElementById('toggle-mode-btn');
+        const defaultContainer = document.getElementById('softphone-default-container');
+        const headlessContainer = document.getElementById('headless-ui-container');
+        const logsContainer = document.getElementById('logs-container');
         const statusDisplay = document.getElementById('status-display');
         const phoneInput = document.getElementById('phone-number');
-        const btnCall = document.getElementById('btn-call');
-        const btnAnswer = document.getElementById('btn-answer');
-        const btnHangup = document.getElementById('btn-hangup');
-        const logsContainer = document.getElementById('logs-container');
+        const dtmfInput = document.getElementById('dtmf-input');
 
         function log(message, isError = false) {
             const entry = document.createElement('div');
@@ -171,151 +211,149 @@
             logsContainer.scrollTop = logsContainer.scrollHeight;
         }
 
-        function updateUI(state, payload = '') {
-            btnCall.disabled = true;
-            btnAnswer.disabled = true;
-            btnHangup.disabled = true;
-            phoneInput.disabled = true;
-
-            switch (state) {
-                case 'idle':
-                    statusDisplay.textContent = 'Готов к работе';
-                    statusDisplay.style.color = '#5f6b7a';
-                    btnCall.disabled = false;
-                    phoneInput.disabled = false;
-                    break;
-                case 'ringing_incoming':
-                    statusDisplay.textContent = `Входящий: ${payload}`;
-                    statusDisplay.style.color = '#e9bb43';
-                    btnAnswer.disabled = false;
-                    btnHangup.disabled = false;
-                    break;
-                case 'ringing_outgoing':
-                    statusDisplay.textContent = `Вызов: ${payload}...`;
-                    statusDisplay.style.color = '#3157d5';
-                    btnHangup.disabled = false;
-                    break;
-                case 'connected':
-                    statusDisplay.textContent = 'Разговор установлен';
-                    statusDisplay.style.color = '#28a745';
-                    btnHangup.disabled = false;
-                    break;
-                case 'error':
-                    statusDisplay.textContent = 'Ошибка вызова';
-                    statusDisplay.style.color = '#dc3545';
-                    btnCall.disabled = false;
-                    phoneInput.disabled = false;
-                    break;
+        async function disconnectSdk() {
+            if (client) {
+                try {
+                    if (client.grantedCapabilities && client.grantedCapabilities.includes('lifecycle.enabled')) {
+                        await client.lifecycle.destroy();
+                    }
+                } catch (e) {
+                    console.error('Ошибка при destroy', e);
+                } finally {
+                    client.disconnect();
+                    client = undefined;
+                    activeChannel = undefined;
+                    log('SDK отключен');
+                }
             }
         }
 
-        async function initHeadlessSoftphone() {
+        async function connectSdk() {
+            await disconnectSdk();
+
             try {
-                log('Инициализация SDK...');
-
-                if (typeof window.SoftphoneSdk === 'undefined') {
-                    throw new Error('SoftphoneSdk не найден. Проверьте URL скрипта.');
-                }
-
-                // В реальном проекте токен получается через fetch от вашего backend
-                const auth = {
-                    type: 'bearer',
-                    token: 'ac0z2uwgb1eed3c4gix4vmz5u86e2nht7c2acpye',
-                    expiresAt: Date.now() + 3600000 
-                };
-
-                client = await window.SoftphoneSdk.connect({
-                    mountTo: document.getElementById('softphone-runtime'),
-                    capabilities: [
-                        'call.lifecycle',
-                        'ui.headless',
+                log(`Подключение в режиме ${currentMode}...`);
+                
+                const capabilities = currentMode === 'headless' 
+                    ? [
+                        'call.lifecycle', 
+                        'ui.headless', 
+                        'call.hold', 
+                        'call.mute', 
+                        'call.dialpad', 
+                        'call.channel', 
+                        'call.transfer.blind'
+                      ]
+                    : [
+                        'call.lifecycle', 
+                        'ui.default',
                         'call.hold',
                         'call.mute'
-                    ],
-                    auth: auth,
-                    debug: true // включено для отладки
+                      ];
+
+                const mountTo = currentMode === 'headless' 
+                    ? document.getElementById('softphone-runtime') 
+                    : document.getElementById('softphone-default-container');
+
+                client = await window.SoftphoneSdk.connect({
+                    mountTo: mountTo,
+                    standaloneUrl: standaloneUrl,
+                    capabilities: capabilities,
+                    auth: authConfig,
+                    debug: true
                 });
 
-                log('SDK подключен (ui.headless)');
-                updateUI('idle');
+                log(`Успешно. Доступные capabilities: ${client.grantedCapabilities.join(', ')}`);
+                if (currentMode === 'headless') {
+                    statusDisplay.textContent = 'Готов к работе (Headless)';
+                }
 
-                // Подписка на события жизненного цикла звонка
-                client.on('call.ringing', event => {
-                    activeChannel = event.channel;
-                    log(`call.ringing: от ${event.phoneNumber}`);
-                    updateUI('ringing_incoming', event.phoneNumber);
-                });
-
-                client.on('call.outgoing.started', event => {
-                    activeChannel = event.channel;
-                    log('call.outgoing.started');
-                    updateUI('ringing_outgoing', phoneInput.value);
-                });
-
-                client.on('call.connected', event => {
-                    activeChannel = event.channel;
-                    log(`call.connected: канал ${event.channel}`);
-                    updateUI('connected');
-                });
-
-                client.on('call.ended', event => {
-                    activeChannel = undefined;
-                    log(`call.ended (причина: ${event.reason})`);
-                    updateUI('idle');
-                });
-
-                client.on('call.failed', event => {
-                    activeChannel = undefined;
-                    log(`call.failed: ${event.message}`, true);
-                    updateUI('error');
-                    setTimeout(() => updateUI('idle'), 3000);
-                });
-
-                client.on('audio.permission.denied', () => {
-                    log('audio.permission.denied: Нет доступа к микрофону', true);
+                // Подписка на все события
+                client.onAny((topic, payload) => {
+                    log(`Событие: ${topic} ` + (payload ? JSON.stringify(payload) : ''));
+                    
+                    // Обновление активного канала для headless команд
+                    if (payload && payload.channel !== undefined) {
+                        activeChannel = payload.channel;
+                    }
+                    
+                    if (currentMode === 'headless') {
+                        updateHeadlessStatus(topic, payload);
+                    }
                 });
 
             } catch (error) {
                 log(`Ошибка подключения: ${error.message}`, true);
-                statusDisplay.textContent = 'SDK не подключен';
-                statusDisplay.style.color = '#dc3545';
+                if (currentMode === 'headless') statusDisplay.textContent = 'Ошибка подключения';
             }
         }
 
-        // Привязка методов SDK к кнопкам UI
-        btnCall.addEventListener('click', async () => {
-            const number = phoneInput.value.trim();
-            if (!number) {
-                log('Введите номер для вызова', true);
-                return;
+        function updateHeadlessStatus(topic, payload) {
+            switch (topic) {
+                case 'call.ringing':
+                    statusDisplay.textContent = `Входящий вызов: ${payload.phoneNumber}`;
+                    break;
+                case 'call.outgoing.started':
+                    statusDisplay.textContent = `Исходящий вызов...`;
+                    break;
+                case 'call.connected':
+                    statusDisplay.textContent = `Разговор установлен (канал ${payload.channel})`;
+                    break;
+                case 'call.ended':
+                case 'call.failed':
+                    statusDisplay.textContent = 'Готов к работе';
+                    activeChannel = undefined;
+                    break;
+                case 'call.held':
+                    statusDisplay.textContent = 'На удержании';
+                    break;
+                case 'call.unheld':
+                    statusDisplay.textContent = 'Разговор установлен';
+                    break;
             }
-            try {
-                log(`place('${number}')`);
-                await client.call.place(number);
-            } catch (err) {
-                log(`Ошибка place(): ${err.message}`, true);
+        }
+
+        // Переключение режимов
+        toggleBtn.addEventListener('click', async () => {
+            if (currentMode === 'headless') {
+                currentMode = 'default';
+                headlessContainer.style.display = 'none';
+                defaultContainer.style.display = 'block';
+                toggleBtn.textContent = 'Переключить на Headless UI (ui.headless)';
+            } else {
+                currentMode = 'headless';
+                headlessContainer.style.display = 'flex';
+                defaultContainer.style.display = 'none';
+                toggleBtn.textContent = 'Переключить на Встроенный UI (ui.default)';
             }
+            await connectSdk();
         });
 
-        btnAnswer.addEventListener('click', async () => {
+        // Привязка Headless команд
+        const execCmd = async (name, fn) => {
+            if (!client || currentMode !== 'headless') return log('Недоступно в текущем режиме', true);
             try {
-                log(`answer({ channel: ${activeChannel} })`);
-                await client.call.answer({ channel: activeChannel });
-            } catch (err) {
-                log(`Ошибка answer(): ${err.message}`, true);
+                log(`Команда: ${name}`);
+                await fn();
+            } catch (e) {
+                log(`Ошибка команды ${name}: ${e.message}`, true);
             }
-        });
+        };
 
-        btnHangup.addEventListener('click', async () => {
-            try {
-                log(`terminate({ channel: ${activeChannel} })`);
-                await client.call.terminate({ channel: activeChannel });
-            } catch (err) {
-                log(`Ошибка terminate(): ${err.message}`, true);
-            }
-        });
+        document.getElementById('btn-call').onclick = () => execCmd('place', () => client.call.place(phoneInput.value.trim()));
+        document.getElementById('btn-answer').onclick = () => execCmd('answer', () => client.call.answer({ channel: activeChannel }));
+        document.getElementById('btn-hangup').onclick = () => execCmd('terminate', () => client.call.terminate({ channel: activeChannel }));
+        
+        document.getElementById('btn-mute').onclick = () => execCmd('mute', () => client.call.mute({ channel: activeChannel }));
+        document.getElementById('btn-unmute').onclick = () => execCmd('unmute', () => client.call.unmute({ channel: activeChannel }));
+        document.getElementById('btn-hold').onclick = () => execCmd('hold', () => client.call.hold({ channel: activeChannel }));
+        document.getElementById('btn-unhold').onclick = () => execCmd('unhold', () => client.call.unhold({ channel: activeChannel }));
+        
+        document.getElementById('btn-dtmf').onclick = () => execCmd('dialTone', () => client.call.dialTone({ tone: dtmfInput.value, channel: activeChannel }));
+        document.getElementById('btn-transfer').onclick = () => execCmd('transferBlind', () => client.call.transferBlind({ phoneNumber: phoneInput.value.trim(), channel: activeChannel }));
 
-        window.addEventListener('load', initHeadlessSoftphone);
+        // Инициализация при загрузке
+        window.addEventListener('load', connectSdk);
     </script>
 </body>
 </html>
