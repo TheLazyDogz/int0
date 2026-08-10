@@ -1,307 +1,321 @@
-
-
 <!DOCTYPE html>
-<html lang="en">
-   <head>
-      <!-- basic -->
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <!-- mobile metas -->
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-      <!-- site metas -->
-      <title>int0 Новый сайт для практики</title>
-      <meta name="keywords" content="">
-      <meta name="description" content="">
-      <meta name="author" content="">
-      <!-- bootstrap css -->
-      <link rel="stylesheet" href="css/bootstrap.min.css">
-      <!-- style css -->
-      <link rel="stylesheet" href="css/style.css">
-      <!-- Responsive-->
-      <link rel="stylesheet" href="css/responsive.css">
-      <!-- fevicon -->
-      <link rel="icon" href="images/fevicon.png" type="image/gif" />
-      <!-- Scrollbar Custom CSS -->
-      <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
-      <!-- Tweaks for older IEs-->
-      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
-      <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headless Softphone Demo</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
+            background: #f6f7f9; 
+            display: flex; 
+            justify-content: center; 
+            padding: 50px 20px; 
+            margin: 0;
+        }
+        .phone-ui { 
+            background: #ffffff; 
+            border-radius: 12px; 
+            box-shadow: 0 12px 32px rgba(23, 32, 51, 0.08); 
+            padding: 24px; 
+            width: 100%;
+            max-width: 340px; 
+            border: 1px solid #dfe3e8;
+        }
+        h2 {
+            margin: 0 0 16px;
+            font-size: 20px;
+            text-align: center;
+            color: #172033;
+        }
+        .status { 
+            text-align: center; 
+            font-size: 14px; 
+            color: #5f6b7a; 
+            margin-bottom: 20px; 
+            height: 20px; 
+            font-weight: 600; 
+        }
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            margin-bottom: 20px; 
+        }
+        input { 
+            padding: 12px; 
+            border: 1px solid #dfe3e8; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            text-align: center; 
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #3157d5;
+        }
+        .buttons { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            margin-bottom: 20px; 
+        }
+        .btn { 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            color: #ffffff; 
+            font-weight: 600; 
+            transition: opacity 0.2s, transform 0.1s; 
+        }
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
+        .btn-call { 
+            background: #3157d5; 
+            grid-column: span 2; 
+        }
+        .btn-answer { 
+            background: #28a745; 
+        }
+        .btn-hangup { 
+            background: #dc3545; 
+        }
+        .logs-wrapper {
+            border: 1px solid #dfe3e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .logs-header {
+            background: #f2f4f7;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #5f6b7a;
+            font-weight: 600;
+            border-bottom: 1px solid #dfe3e8;
+        }
+        .logs { 
+            background: #172033; 
+            color: #4ade80; 
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
+            font-size: 11px; 
+            padding: 12px; 
+            height: 160px; 
+            overflow-y: auto; 
+            margin: 0;
+        }
+        .log-entry { 
+            margin-bottom: 6px; 
+            line-height: 1.4;
+        }
+        .log-time {
+            color: #5f6b7a;
+            margin-right: 4px;
+        }
+        .log-error {
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
 
-<!-- CallGear -->
-    <script type="text/javascript" async src="https://eti-pp-widget-frontend.uis.st/comagic.js?k=xRxxgmzTOxlBGdh0RBz_Pn5TBdL5hzNP"></script>
-<!-- CallGear -->
-      
-   </head>
-   <!-- body -->
-   <body class="main-layout">
-      <!-- loader  -->
-      <div class="loader_bg">
-         <div class="loader"><img src="images/loading.gif" alt="#"/></div>
-      </div>
-      <!-- end loader -->
-      <!-- header -->
-      <header>
-         <!-- header inner -->
-         <div class="header">
-            <div class="container-fluid">
-               <div class="row">
-                  <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col logo_section">
-                     <div class="full">
-                        <div class="center-desk">
-                           <div class="logo">
-                              <a href="index.html"><img src="images/logo.png" alt="#" /></a>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="col-xl-7 col-lg-7 col-md-9 col-sm-9">
-                    	<h3>			
-			<a href="tel:+79997813915">
-				Номер МСК: +7(999)781-39-15 
-				</a>
-			<br>Номер СПБ: +7(812)0003344
-			</h3>	
-                        </div>
-                     </nav>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </header>
-      <!-- end header inner -->
-      <!-- end header -->
-      <!-- banner -->
-      <section class="banner_main">
-         <div id="myCarousel" class="carousel slide banner1" data-ride="carousel">
-            <ol class="carousel-indicators">
-               <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-               <li data-target="#myCarousel" data-slide-to="1"></li>
-               <li data-target="#myCarousel" data-slide-to="2"></li>
-            </ol>
-            <div class="carousel-inner">
-               <div class="carousel-item active">
-                  <div class="container-fluid">
-                     <div class="carousel-caption relative">
-                        <div class="row d_flex">
-                           <div class="col-md-6">
-                              <img class="bann_img" src="images/banner_ing.jpg" alt="#"/>
-                           </div>
-                           <div class="col-md-6">
-                              <span>01/03</span>
-                              <h1>INT 0/1 Salon Creating Beauty</h1>
-                              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempo</p>
-                              <a class="get_btn" href="Javascript:void(0)" role="button" onclick="Comagic.openWidget()">Get Appointment</a>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="carousel-item">
-                  <div class="container-fluid">
-                     <div class="carousel-caption relative">
-                        <div class="row d_flex">
-                           <div class="col-md-6">
-                              <img class="bann_img" src="images/banner_ing.jpg" alt="#"/>
-                           </div>
-                           <div class="col-md-6">
-                              <span>02/03</span>
-                              <h1>ПРОД 4735 Salon Creating Beauty</h1>
-                              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempo</p>
-                              <a class="get_btn" href="Javascript:void(0)" role="button">Get Appoinment</a>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="carousel-item">
-                  <div class="container-fluid">
-                     <div class="carousel-caption relative">
-                        <div class="row d_flex">
-                           <div class="col-md-6">
-                              <img class="bann_img" src="images/banner_ing.jpg" alt="#"/>
-                           </div>
-                           <div class="col-md-6">
-                              <span>03/03</span>
-                              <h1>ПРОД 4735 Salon Creating Beauty</h1>
-                              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempo</p>
-                              <a class="get_btn" href="Javascript:void(0)" role="button">Get Appoinment</a>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
-               <i class="fa fa-long-arrow-left" aria-hidden="true"></i>
-               <span class="sr-only">Previous</span>
-               </a>
-               <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
-               <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-               <span class="sr-only">Next</span>
-               </a>
-            </div>
-         </div>
-      </section>
-      <!-- end banner -->
-      <!-- what we do  -->
-      <div class="we_do slin">
-         <div class="container">
-            <div class="row">
-               <div class="col-md-12">
-                  <div class="titlepage">
-                     <h2>What We Do </h2>
-                  </div>
-               </div>
-            </div>
-            <div class="row">
-               <div class="col-lg-10 offset-lg-1 col-md-12">
-                  <div class="row">
-                     <div class="col-md-3 col-sm-6">
-                        <div class="we_box">
-                           <i><img src="images/weicon1.png" alt="#"/></i>
-                           <h3>Nail Art</h3>
-                           <p>Lorem ipsum dolor sit amet, consectetur </p>
-                        </div>
-                     </div>
-                     <div class="col-md-3 col-sm-6">
-                        <div class="we_box">
-                           <i><img src="images/weicon2.png" alt="#"/></i>
-                           <h3>Manicure</h3>
-                           <p>Lorem ipsum dolor sit amet, consectetur </p>
-                        </div>
-                     </div>
-                     <div class="col-md-3 col-sm-6">
-                        <div class="we_box">
-                           <i><img src="images/weicon3.png" alt="#"/></i>
-                           <h3>Pedicure</h3>
-                           <p>Lorem ipsum dolor sit amet, consectetur </p>
-                        </div>
-                     </div>
-                     <div class="col-md-3 col-sm-6">
-                        <div class="we_box">
-                           <i><img src="images/weicon4.png" alt="#"/></i>
-                           <h3>Paraffin wax</h3>
-                           <p>Lorem ipsum dolor sit amet, consectetur </p>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-      <!-- end what we do  -->
-      <!--  contact -->
-      <div class="contact">
-         <div class="container">
-            <div class="row">
-               <div class="col-md-12">
-                  <div class="titlepage">
-                     <h2>Get In Touch</h2>
-                  </div>
-               </div>
-            </div>
-            <div class="row">
-               <div class="col-md-6 offset-md-3">
-                  <form id="request" class="main_form">
-                     <div class="row">
-                        <div class="col-md-12 ">
-                           <input class="contactus" placeholder="Full Name" type="type" name="Full Name"> 
-                        </div>
-                        <div class="col-md-12">
-                           <input class="contactus" placeholder="Email " type="type" name="Email "> 
-                        </div>
-                        <div class="col-md-12">
-                           <input class="contactus" placeholder="Phone Number" type="type" name="Phone Number">                          
-                        </div>
-                        <div class="col-md-12">
-                           <textarea class="textarea" placeholder="Message" type="type" Message="Name">Message</textarea>
-                        </div>
-                        <div class="col-md-12">
-                           <button class="send_btn">Send</button>
-                        </div>
-                     </div>
-                  </form>
-               </div>
-            </div>
-         </div>
-         <div class="container-fluid">
-            <div class="row">
-               <div class="col-md-12">
-                  <div class="map_main">
-                     <div class="map-responsive">
-                        <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA0s1a7phLN0iaD6-UE7m4qP-z21pH0eSc&amp;q=Eiffel+Tower+Paris+France" width="600" height="386" frameborder="0" style="border:0; width: 100%;" allowfullscreen=""></iframe>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-      <!-- end contact -->
-      <!--  footer -->
-      <footer>
-         <div class="footer">
-            <div class="container">
-               <div class="row">
-                  <div class="col-md-12">
-                     <ul class="conta">
-                        <li><i class="fa fa-map-marker" aria-hidden="true"></i> Passages of Lorem Ipsum available</li>
-                        <li><i class="fa fa-phone" aria-hidden="true"></i> Call : <br>84950002233 (МСК)<br>88120003344 (СПБ) </li>
-                        <li> <i class="fa fa-envelope" aria-hidden="true"></i><a href="#"> demo@gmail.com</a></li>
-                     </ul>
-                  </div>
-                  <div class=" col-md-3 col-sm-6">
-                     <h3>About </h3>
-                     <p class="variat">There are many variations of passages of Lorem Ipsum available, but the majority have suffered le</p>
-                  </div>
-                  <div class=" col-md-3 col-sm-6">
-                     <h3>Nail Salon  </h3>
-                     <p class="variat" >There are many variations of passages of Lorem Ipsum available, but the majority have suffered le</p>
-                  </div>
-                  <div class="col-md-2 col-sm-6">
-                     <h3>Useful Link</h3>
-                     <ul class="link_menu">
-                        <li class="active"><a href="index.html">Home</a></li>
-                        <li><a href="about.html"> About</a></li>
-                        <li><a href="we-do.html">What we do</a></li>
-                        <li><a href="pricing.html">Pricing</a></li>
-                        <li><a href="contact.html">Contact Us</a></li>
-                     </ul>
-                  </div>
-                  <div class="col-md-4 col-sm-6">
-                     <h3>Subscribe</h3>
-                     <form class="bottom_form">
-                        <a class="right_btn" href="Javascript:void(0)"> <i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
-                        <input class="enter" placeholder="Enter your email" type="text" name="Enter your email">
-                        <p >There are many variations of passages </p>
-                     </form>
-                  </div>
-               </div>
-            </div>
-            <div class="copyright">
-               <div class="container">
-                  <div class="row">
-                     <div class="col-md-10 offset-md-1">
-                        <p>© 2019 All Rights Reserved. Design by  <a href="https://html.design/"> Free Html Templates</a></p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </footer>
-      <!-- end footer -->
-      <!-- Javascript files-->
-      <script src="js/jquery.min.js"></script>
-      <script src="js/bootstrap.bundle.min.js"></script>
-      <script src="js/jquery-3.0.0.min.js"></script>
-      <!-- sidebar -->
-      <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
-      <script src="js/custom.js"></script>
-   </body>
+    <!-- Технический контейнер для runtime (headless режим) -->
+    <div id="softphone-runtime" style="position: fixed; width: 1px; height: 1px; overflow: hidden"></div>
+
+    <div class="phone-ui">
+        <h2>Custom Softphone</h2>
+        <div class="status" id="status-display">Ожидание инициализации...</div>
+
+        <div class="input-group">
+            <input type="text" id="phone-number" placeholder="Номер (напр. +12025550123)" />
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-call" id="btn-call" disabled>Позвонить</button>
+            <button class="btn btn-answer" id="btn-answer" disabled>Ответить</button>
+            <button class="btn btn-hangup" id="btn-hangup" disabled>Завершить</button>
+        </div>
+
+        <div class="logs-wrapper">
+            <div class="logs-header">Event Logs</div>
+            <div class="logs" id="logs-container"></div>
+        </div>
+    </div>
+
+    <!-- ВНИМАНИЕ: Замените URL на реальный адрес UMD-скрипта SDK -->
+     <script type="text/javascript" async src="https://dev-int0-widget-frontend.uis.st/comagic.js?k=sZLs6wB0rOO8V6TgVAWncFhgGFGR7DOP"></script>
+
+    <script>
+        let client;
+        let activeChannel;
+
+        const statusDisplay = document.getElementById('status-display');
+        const phoneInput = document.getElementById('phone-number');
+        const btnCall = document.getElementById('btn-call');
+        const btnAnswer = document.getElementById('btn-answer');
+        const btnHangup = document.getElementById('btn-hangup');
+        const logsContainer = document.getElementById('logs-container');
+
+        function log(message, isError = false) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${isError ? 'log-error' : ''}`;
+            const time = new Date().toLocaleTimeString('ru-RU', { hour12: false });
+            entry.innerHTML = `<span class="log-time">[${time}]</span> ${message}`;
+            logsContainer.appendChild(entry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function updateUI(state, payload = '') {
+            btnCall.disabled = true;
+            btnAnswer.disabled = true;
+            btnHangup.disabled = true;
+            phoneInput.disabled = true;
+
+            switch (state) {
+                case 'idle':
+                    statusDisplay.textContent = 'Готов к работе';
+                    statusDisplay.style.color = '#5f6b7a';
+                    btnCall.disabled = false;
+                    phoneInput.disabled = false;
+                    break;
+                case 'ringing_incoming':
+                    statusDisplay.textContent = `Входящий: ${payload}`;
+                    statusDisplay.style.color = '#e9bb43';
+                    btnAnswer.disabled = false;
+                    btnHangup.disabled = false;
+                    break;
+                case 'ringing_outgoing':
+                    statusDisplay.textContent = `Вызов: ${payload}...`;
+                    statusDisplay.style.color = '#3157d5';
+                    btnHangup.disabled = false;
+                    break;
+                case 'connected':
+                    statusDisplay.textContent = 'Разговор установлен';
+                    statusDisplay.style.color = '#28a745';
+                    btnHangup.disabled = false;
+                    break;
+                case 'error':
+                    statusDisplay.textContent = 'Ошибка вызова';
+                    statusDisplay.style.color = '#dc3545';
+                    btnCall.disabled = false;
+                    phoneInput.disabled = false;
+                    break;
+            }
+        }
+
+        async function initHeadlessSoftphone() {
+            try {
+                log('Инициализация SDK...');
+
+                if (typeof window.SoftphoneSdk === 'undefined') {
+                    throw new Error('SoftphoneSdk не найден. Проверьте URL скрипта.');
+                }
+
+                // В реальном проекте токен получается через fetch от вашего backend
+                const auth = {
+                    type: 'bearer',
+                    token: 'ac0z2uwgb1eed3c4gix4vmz5u86e2nht7c2acpye',
+                    expiresAt: Date.now() + 3600000 
+                };
+
+                client = await window.SoftphoneSdk.connect({
+                    mountTo: document.getElementById('softphone-runtime'),
+                    capabilities: [
+                        'call.lifecycle',
+                        'ui.headless',
+                        'call.hold',
+                        'call.mute'
+                    ],
+                    auth: auth,
+                    debug: true // включено для отладки
+                });
+
+                log('SDK подключен (ui.headless)');
+                updateUI('idle');
+
+                // Подписка на события жизненного цикла звонка
+                client.on('call.ringing', event => {
+                    activeChannel = event.channel;
+                    log(`call.ringing: от ${event.phoneNumber}`);
+                    updateUI('ringing_incoming', event.phoneNumber);
+                });
+
+                client.on('call.outgoing.started', event => {
+                    activeChannel = event.channel;
+                    log('call.outgoing.started');
+                    updateUI('ringing_outgoing', phoneInput.value);
+                });
+
+                client.on('call.connected', event => {
+                    activeChannel = event.channel;
+                    log(`call.connected: канал ${event.channel}`);
+                    updateUI('connected');
+                });
+
+                client.on('call.ended', event => {
+                    activeChannel = undefined;
+                    log(`call.ended (причина: ${event.reason})`);
+                    updateUI('idle');
+                });
+
+                client.on('call.failed', event => {
+                    activeChannel = undefined;
+                    log(`call.failed: ${event.message}`, true);
+                    updateUI('error');
+                    setTimeout(() => updateUI('idle'), 3000);
+                });
+
+                client.on('audio.permission.denied', () => {
+                    log('audio.permission.denied: Нет доступа к микрофону', true);
+                });
+
+            } catch (error) {
+                log(`Ошибка подключения: ${error.message}`, true);
+                statusDisplay.textContent = 'SDK не подключен';
+                statusDisplay.style.color = '#dc3545';
+            }
+        }
+
+        // Привязка методов SDK к кнопкам UI
+        btnCall.addEventListener('click', async () => {
+            const number = phoneInput.value.trim();
+            if (!number) {
+                log('Введите номер для вызова', true);
+                return;
+            }
+            try {
+                log(`place('${number}')`);
+                await client.call.place(number);
+            } catch (err) {
+                log(`Ошибка place(): ${err.message}`, true);
+            }
+        });
+
+        btnAnswer.addEventListener('click', async () => {
+            try {
+                log(`answer({ channel: ${activeChannel} })`);
+                await client.call.answer({ channel: activeChannel });
+            } catch (err) {
+                log(`Ошибка answer(): ${err.message}`, true);
+            }
+        });
+
+        btnHangup.addEventListener('click', async () => {
+            try {
+                log(`terminate({ channel: ${activeChannel} })`);
+                await client.call.terminate({ channel: activeChannel });
+            } catch (err) {
+                log(`Ошибка terminate(): ${err.message}`, true);
+            }
+        });
+
+        window.addEventListener('load', initHeadlessSoftphone);
+    </script>
+</body>
 </html>
-
-
-
-
