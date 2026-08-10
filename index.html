@@ -349,7 +349,7 @@
         document.getElementById('btn-hold').onclick = () => execCmd('hold', () => client.call.hold({ channel: activeChannel }));
         document.getElementById('btn-unhold').onclick = () => execCmd('unhold', () => client.call.unhold({ channel: activeChannel }));
         
-        document.getElementById('btn-dtmf').onclick = () => execCmd('dialTone', () => client.call.dialTone({ tone: dtmfInput.value, channel: activeChannel }));
+        document.getElementById('btn-dtmf').onclick = () => execCmd('dialTone', () => client.call.dialTone({ tones: dtmfInput.value, channel: activeChannel }));
         document.getElementById('btn-transfer').onclick = () => execCmd('transferBlind', () => client.call.transferBlind({ phoneNumber: phoneInput.value.trim(), channel: activeChannel }));
 
         // Инициализация при загрузке
