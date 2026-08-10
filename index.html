@@ -349,8 +349,18 @@
         document.getElementById('btn-hold').onclick = () => execCmd('hold', () => client.call.hold({ channel: activeChannel }));
         document.getElementById('btn-unhold').onclick = () => execCmd('unhold', () => client.call.unhold({ channel: activeChannel }));
         
-        document.getElementById('btn-dtmf').onclick = () => execCmd('dialTone', () => client.call.dialTone({ tone: dtmfInput.value, channel: activeChannel }));
-        document.getElementById('btn-transfer').onclick = () => execCmd('transferBlind', () => client.call.transferBlind({ phoneNumber: phoneInput.value.trim(), channel: activeChannel }));
+        // SDK signature: dialTone(tone: string), transferBlind(targetPhone: string).
+        // Do NOT pass an options object — standalone forwards args.tone to JsSIP sendDTMF(string).
+        document.getElementById('btn-dtmf').onclick = () => {
+            const tone = String(dtmfInput.value || '').trim();
+            if (!tone) return log('Укажите DTMF-символ (0-9, A-D, #, *)', true);
+            return execCmd(`dialTone("${tone}")`, () => client.call.dialTone(tone));
+        };
+        document.getElementById('btn-transfer').onclick = () => {
+            const targetPhone = String(phoneInput.value || '').trim();
+            if (!targetPhone) return log('Укажите номер для перевода', true);
+            return execCmd(`transferBlind("${targetPhone}")`, () => client.call.transferBlind(targetPhone));
+        };
 
         // Инициализация при загрузке
         window.addEventListener('load', connectSdk);
